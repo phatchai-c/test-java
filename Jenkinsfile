@@ -4,7 +4,6 @@ pipeline {
     docker_registryCredential = 'phatchai'
   }
 
-pipeline {
   agent any  
   stages {
     stage('Cloning git') {
@@ -13,12 +12,11 @@ pipeline {
         sh "ls -lah"
       }
     }
-  }
-}
-stage('Building image') {
+
+    stage('Building image') {
       steps {
         script {
-          images = docker.build docker_registry
+          img = docker.build docker_registry
         }
       }
     }
@@ -26,12 +24,13 @@ stage('Building image') {
     stage('Deploy Image') {
       steps {
         script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-              images.push("${BUILD_NUMBER}")
-              images.push("latest")
+          docker.withRegistry( 'https://registry.hub.docker.com', docker_registryCredential ) {
+              img.push("${BUILD_NUMBER}")
+              img.push("latest")
           }
         }
       }
     }
   }
 }
+
